@@ -12,7 +12,6 @@
 #include <stdarg.h>  // for formatting in putty_printf
 
 #include "../Core/Inc/dribbler.h"
-#include "../Core/Inc/geneva.h"
 #include "../Core/Inc/shoot.h"
 #include "../Core/Inc/wheels.h"
 #include "../Core/Inc/ballSensor.h"

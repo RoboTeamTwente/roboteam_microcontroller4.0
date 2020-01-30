@@ -31,7 +31,6 @@ typedef struct ReceivedData {
 	float stateRef[3];
 	bool visionAvailable;
 	float visionYaw;
-	int genevaRef;
 	int dribblerRef;
 	int shootPower;
 	bool kick_chip_forced;
@@ -61,7 +60,6 @@ typedef struct roboData{
    uint8_t kick_chip_forced:1;		//Kick/chip immediately       [0, 1]            -             {true, false}            1
    uint8_t kick_chip_power:8;		//Kick/chip power             [0, 255]          0.39%         [0, 100]%                8
    uint8_t velocity_dribbler:5;		//Reference dribbler speed    [0, 31]          3.125%         [0, 100]%                5
-   uint8_t geneva_drive_state:3;	//Geneva drive state          [0, 7]            -             [-2, 2]                  3
    //int16_t cam_position_x:13;		//x position robot (camera)   [-4096, 4095]     0.0025m       [-10.24, 10.23]         13
    //int16_t cam_position_y:13;		//y position robot (camera)   [-4096, 4095]     0.0025m       [-10.24, 10.23]         13
    int16_t cam_rotation:11;			//Orientation (camera)        [-1024, 1023]     0.00307rad    [-pi, pi]               11
@@ -76,8 +74,6 @@ typedef struct roboAckData{
 	bool	battery:1;
 	bool	hasBall:1;
 	uint8_t	ballPos:4;
-	bool	genevaWorking:1;
-	uint8_t	genevaState:7;
 	int16_t	rho:11;
 	int16_t	angle:10;
 	int16_t	theta:11;

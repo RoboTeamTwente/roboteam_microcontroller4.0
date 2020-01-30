@@ -46,7 +46,6 @@ void printRoboData(roboData *input, uint8_t dataArray[ROBOPKTLEN]) {
 	Putty_printf("\tKICKCHIP\n\r");
 	Putty_printf("\tKick %i \n\r\t Chip: %i \n\r\t Forced: %i \n\r\t Power: %i \n\r", input->do_kick, input->do_chip ,input->kick_chip_forced, input->kick_chip_power);
 	Putty_printf("\tDribbler velocity: %i \n\r", input->velocity_dribbler);
-	Putty_printf("\tGeneva drive: %i \n\r", input->geneva_drive_state);
 	Putty_printf("\tDriving reference: %i \n\r", input->driving_reference);
 	Putty_printf("\tAngular velocity: %i \n\r", input->velocity_angular);
 	Putty_printf("\tCAMERA \n\r\t use cam info: %i \n\r\t rotation: %i \n\r\n\r", input->use_cam_info, input->cam_rotation);
@@ -76,7 +75,8 @@ void packetToRoboData(volatile uint8_t input[ROBOPKTLEN], ReceivedData* received
 	uint8_t kick_chip_forced = (input[5] & 0b00100000) >> 5;
 	uint8_t debug_info = (input[5] & 0b00010000) >> 4;
 	uint8_t use_cam_info = (input[5] & 0b00001000) >> 3;
-	uint8_t geneva_drive_state = input[5] & 0b00000111;
+	// 3 free bits here
+	// TODO: Change in PC code
 
 	uint8_t velocity_dribbler = 0;
 	velocity_dribbler = (input[6] & 0b11111000) >> 3;
@@ -95,9 +95,6 @@ void packetToRoboData(volatile uint8_t input[ROBOPKTLEN], ReceivedData* received
 	receivedData->stateRef[body_w] = velocity_angular * CONVERT_YAW_REF;
 	//receivedData->stateRef = stateRef;
 
-	// Geneva
-	receivedData->genevaRef = geneva_drive_state;
-
 	// Dribbler
 	receivedData->dribblerRef = velocity_dribbler * CONVERT_DRIBBLE_SPEED;
 
@@ -114,7 +111,7 @@ void packetToRoboData(volatile uint8_t input[ROBOPKTLEN], ReceivedData* received
 
 
 void roboAckDataToPacket(volatile roboAckData *input, volatile uint8_t output[ROBOPKTLEN]) {
-
+	// TODO: Change feedback in PC code
 	output[0]  = (input->roboID);
 
 	output[1]  = (uint8_t) ((input->XsensCalibrated & 0x01) << 7);
@@ -123,20 +120,17 @@ void roboAckDataToPacket(volatile roboAckData *input, volatile uint8_t output[RO
 	output[1] |= (uint8_t) ((input->hasBall & 0x01) << 4);
 	output[1] |= (uint8_t) (input->ballPos & 0x0F);
 
-	output[2]  = (uint8_t) ((input->genevaWorking & 0x01) << 7);
-	output[2] |= (uint8_t) (input->genevaState & 0x7F);
+	output[2]  = (uint8_t) (input->rho >> 3);
 
-	output[3]  = (uint8_t) (input->rho >> 3);
+	output[3]  = (uint8_t) ((input->rho & 0x03) << 5);
+	output[3] |= (uint8_t) ((input->angle >> 5) & 0x1F);
 
-	output[4]  = (uint8_t) ((input->rho & 0x03) << 5);
-	output[4] |= (uint8_t) ((input->angle >> 5) & 0x1F);
+	output[4]  = (uint8_t) ((input->angle & 0x1F) << 3);
+	output[4]  |= (uint8_t) ((input->theta >> 8) & 0x07);
 
-	output[5]  = (uint8_t) ((input->angle & 0x1F) << 3);
-	output[5]  |= (uint8_t) ((input->theta >> 8) & 0x07);
+	output[5]  = (uint8_t) (input->theta & 0xFF);
 
-	output[6]  = (uint8_t) (input->theta & 0xFF);
-
-	output[7]  = (uint8_t) (input->wheelLocked << 7);
-	output[7]  |= (uint8_t) (input->signalStrength & 0x7F);
+	output[6]  = (uint8_t) (input->wheelLocked << 7);
+	output[6]  |= (uint8_t) (input->signalStrength & 0x7F);
 }
 

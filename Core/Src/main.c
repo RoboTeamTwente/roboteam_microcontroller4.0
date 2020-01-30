@@ -50,7 +50,6 @@
 #include "wheels.h"
 #include "stateControl.h"
 #include "stateEstimation.h"
-#include "geneva.h"
 #include "dribbler.h"
 #include "shoot.h"
 #include "Wireless.h"
@@ -122,7 +121,7 @@ MTi_data* MTi;
 int counter = 0;
 int strength = 0;
 
-ReceivedData receivedData = {{0.0}, false, 0.0f, geneva_none, 0, 0, false, false};
+ReceivedData receivedData = {{0.0}, false, 0.0f, 0, 0, false, false};
 volatile roboAckData AckData = {0};
 volatile uint8_t feedback[ROBOPKTLEN] = {0};
 StateInfo stateInfo = {0.0f, false, {0.0}, 0.0f, 0.0f, {0.0}};
@@ -194,31 +193,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 // Set the references from the received data and execute the desired actions.
 void executeCommands(ReceivedData* receivedData) {
 	stateControl_SetRef(receivedData->stateRef);
-	geneva_SetRef(receivedData->genevaRef);
 	dribbler_SetSpeed(receivedData->dribblerRef);
 	shoot_SetPower(receivedData->shootPower);
 
 	if (receivedData->do_kick) {
-		if (receivedData->kick_chip_forced){
-			// no questions asked
+		if (ballPosition.canKickBall || receivedData->kick_chip_forced){
 			shoot_Shoot(shoot_Kick);
 		}
-		else if (ballPosition.canKickBall) {
-			bool geneva_able = true; // set to false to use geneva+ballsensor
-//			switch(geneva_GetState()){
-//				case geneva_none: 		geneva_able = false;				break;
-//				case geneva_leftleft: 	geneva_able = ballPosition.x > 300;	break;
-//				case geneva_left:		geneva_able = ballPosition.x > 250;	break;
-//				case geneva_middle:		geneva_able = true;					break;
-//				case geneva_right:		geneva_able = ballPosition.x < 450;	break;
-//				case geneva_rightright: geneva_able = ballPosition.x < 350;	break;
-//			}
-			if(geneva_able){
-				shoot_Shoot(shoot_Kick);
-			}
-		}
-	}
-	else if (receivedData->do_chip) {
+	} else if (receivedData->do_chip) {
 		if (ballPosition.canKickBall || receivedData->kick_chip_forced) {
 			shoot_Shoot(shoot_Chip);
 		}
@@ -230,7 +212,6 @@ void clearReceivedData(ReceivedData* receivedData) {
 	receivedData->do_kick = false;
 	receivedData->kick_chip_forced = false;
 	receivedData->dribblerRef = 0;
-	receivedData->genevaRef = geneva_none;
 	receivedData->shootPower = 0;
 	receivedData->stateRef[body_x] = 0.0f;
 	receivedData->stateRef[body_y] = 0.0f;
@@ -242,12 +223,7 @@ void clearReceivedData(ReceivedData* receivedData) {
 // Handles the interrupts of the different timers.
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	if(htim->Instance == htim6.Instance){
-		if (xsens_CalibrationDone) {	// don't do geneva update until xsens calibration is done
-			geneva_Update();
-		}
-	}
-	else if(htim->Instance == htim7.Instance) {
+	if(htim->Instance == htim7.Instance) {
 		if (xsens_CalibrationDone) {	// don't do control until xsens calibration is done
 			if (!test_isTestRunning()) {
 				// State estimation
@@ -303,7 +279,6 @@ void printReceivedData(ReceivedData* receivedData) {
 	Putty_printf("  x: %f\n\r", receivedData->stateRef[body_x]);
 	Putty_printf("  y: %f\n\r", receivedData->stateRef[body_y]);
 	Putty_printf("yaw: %f\n\r", receivedData->stateRef[body_w]);
-	Putty_printf("geneva state: %d\n\r", receivedData->genevaRef);
 	Putty_printf("dribbler speed: %d %%\n\r", receivedData->dribblerRef);
 	Putty_printf("shooting power: %d %%\n\r", receivedData->shootPower);
 	Putty_printf("kick: %u\n\r",receivedData->do_kick);
@@ -345,10 +320,6 @@ void printRobotStateData() {
 	Putty_printf("  RB: %s \n\r", read_Pin(RB_LOCK_pin) ? "yes" : "no");
 	Putty_printf("  LB: %s \n\r", read_Pin(LB_LOCK_pin) ? "yes" : "no");
 	Putty_printf("  LF: %s \n\r", read_Pin(LF_LOCK_pin) ? "yes" : "no");
-	Putty_printf("Geneva: \n\r");
-	Putty_printf("  encoder: %d \n\r", geneva_GetEncoder());
-	Putty_printf("  pwm: %d\n\r", geneva_GetPWM());
-	Putty_printf("  ref: %f\n\r", geneva_GetRef());
 }
 
 void printBaseStation() {
@@ -428,7 +399,6 @@ int main(void)
   wheels_Init();
   stateControl_Init();
   stateEstimation_Init();
-  geneva_Init();
   shoot_Init();
   dribbler_Init();
   ballSensor_Init();
@@ -466,7 +436,6 @@ int main(void)
 		  wheels_DeInit();
 		  stateControl_DeInit();
 		  stateEstimation_DeInit();
-		  geneva_DeInit();
 		  shoot_DeInit();
 		  dribbler_DeInit();
 		  ballSensor_DeInit();
@@ -508,8 +477,6 @@ int main(void)
 	  AckData.ballSensorWorking = ballSensor_isWorking();
 	  AckData.hasBall = ballPosition.canKickBall;
 	  AckData.ballPos = ballPosition.x/100 & ballSensor_isWorking();
-	  AckData.genevaWorking = geneva_IsWorking();
-	  AckData.genevaState = geneva_GetState();
 
 	  float vx = stateEstimation_GetState()[body_x];
 	  float vy = stateEstimation_GetState()[body_y];

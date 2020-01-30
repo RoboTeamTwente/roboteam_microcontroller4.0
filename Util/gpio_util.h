@@ -29,13 +29,6 @@ extern GPIO_Pin Chip_pin;
 extern GPIO_Pin Charge_pin;
 extern GPIO_Pin Charge_done_pin;
 
-// Geneva
-extern GPIO_Pin Geneva_PWM_pin;
-extern GPIO_Pin Geneva_DIR_A_pin;
-extern GPIO_Pin Geneva_DIR_B_pin;
-extern GPIO_Pin Geneva_ENC_A_pin;
-extern GPIO_Pin Geneva_ENC_B_pin;
-
 // Wheels PWM
 extern GPIO_Pin RB_PWM_pin;
 extern GPIO_Pin RF_PWM_pin;

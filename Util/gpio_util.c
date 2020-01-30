@@ -16,13 +16,6 @@ GPIO_Pin Chip_pin 			= { Chip_GPIO_Port			, Chip_Pin			};
 GPIO_Pin Charge_pin 		= { Charge_GPIO_Port		, Charge_Pin		};
 GPIO_Pin Charge_done_pin 	= { Charge_done_GPIO_Port	, Charge_done_Pin	};
 
-// Geneva
-GPIO_Pin Geneva_PWM_pin		= { PWM_Geneva_GPIO_Port	, PWM_Geneva_Pin	};
-GPIO_Pin Geneva_DIR_A_pin 	= { Geneva_DIRA_GPIO_Port	, Geneva_DIRA_Pin	};
-GPIO_Pin Geneva_DIR_B_pin 	= { Geneva_DIRB_GPIO_Port	, Geneva_DIRB_Pin	};
-GPIO_Pin Geneva_ENC_A_pin	= { Geneva_CHA_GPIO_Port	, Geneva_CHA_Pin	};
-GPIO_Pin Geneva_ENC_B_pin	= { Geneva_CHB_GPIO_Port	, Geneva_CHB_Pin	};
-
 // Wheels PWM
 GPIO_Pin RB_PWM_pin			= { RB_PWM_GPIO_Port		, RB_PWM_Pin		};
 GPIO_Pin RF_PWM_pin			= { RF_PWM_GPIO_Port		, RF_PWM_Pin		};

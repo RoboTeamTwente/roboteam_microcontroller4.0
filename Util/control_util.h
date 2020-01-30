@@ -50,11 +50,6 @@
 #define YAW_MARGIN (0.5F/180.0F)*(float)M_PI // margin at which the I-value of the PID is reset to 0
 #define WHEEL_REF_LIMIT 2200/OMEGAtoPWM // Limit the maximum wheel reference to leave room for the wheels PID
 
-// Geneva
-#define GENEVA_CAL_EDGE_CNT 4100		// the amount of encoder counts from one edge to the other
-#define ENCODER_DEVIATION_MARGIN 3		// margin within which encoder is considered to be the same as previous encoder
-#define GENEVA_NOT_WORKING_TIME 2	 	// number of seconds not responding after which geneva is considered to be not working
-
 // Shoot
 #define MIN_KICK_TIME 25 				// minimum time period of kicking
 #define MAX_KICK_TIME 300 				// maximum time period of kicking
@@ -80,15 +75,6 @@ typedef enum {
 	wheels_LB,
 	wheels_LF,
 }wheel_names;
-
-typedef enum{
-	geneva_none,
-	geneva_leftleft,
-	geneva_left,
-	geneva_middle,
-	geneva_right,
-	geneva_rightright
-}geneva_positions;
 
 typedef enum {
 	off,
