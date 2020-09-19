@@ -20,6 +20,7 @@
 #define UTILS_CONTROL_UTIL_H_
 
 #include <math.h>
+#include "arm_math.h"
 #include <stdbool.h>
 
 ///////////////////////////////////////////////////// DEFINITIONS
@@ -34,10 +35,10 @@
 
 #define FRONT_ANGLE 30		// angle of front wheels (deg)
 #define BACK_ANGLE 60		// angle of back wheels (deg)
-#define cosFront cos(FRONT_ANGLE * M_PI/180)
-#define sinFront sin(FRONT_ANGLE * M_PI/180)
-#define cosBack cos(BACK_ANGLE * M_PI/180)
-#define sinBack sin(BACK_ANGLE * M_PI/180)
+#define cosFront cosf(FRONT_ANGLE * PI/180.0f)
+#define sinFront sinf(FRONT_ANGLE * PI/180.0f)
+#define cosBack cosf(BACK_ANGLE * PI/180.0f)
+#define sinBack sinf(BACK_ANGLE * PI/180.0f)
 
 bool MOTORS_50W;			// wattage of motors, true = 50 W, false = 30 W
 
@@ -50,12 +51,12 @@ float MAX_VOLTAGE; // [V] see datasheet
 #define MAX_VOLTAGE_30W 12.0
 #define MAX_VOLTAGE_50W 24.0
 float SPEED_CONSTANT; //[(rad/s)/V] see datasheet
-#define SPEED_CONSTANT_30W 374.0
-#define SPEED_CONSTANT_50W 285.0
+#define SPEED_CONSTANT_30W 374.0F
+#define SPEED_CONSTANT_50W 285.0F
 #define PULSES_PER_ROTATION (float)4*1024 // number of pulses of the encoder per rotation of the motor (see datasheet)
 
 float OMEGAtoPWM; // conversion factor from wheel speed [rad/s] to required PWM on the motor
-#define ENCODERtoOMEGA (float)2*M_PI/(TIME_DIFF*GEAR_RATIO*PULSES_PER_ROTATION) // conversion factor from number of encoder pulses to wheel speed [rad/s]
+#define ENCODERtoOMEGA (float)2*PI/(TIME_DIFF*GEAR_RATIO*PULSES_PER_ROTATION) // conversion factor from number of encoder pulses to wheel speed [rad/s]
 
 // Control
 #define YAW_MARGIN (0.5F/180.0F)*(float)M_PI // margin at which the I-value of the PID is reset to 0
@@ -110,7 +111,7 @@ typedef enum {
 	idle
 }PID_states;// keeps track of the state of the system
 
-struct PIDstruct{
+static struct PIDstruct{
 	float kP;
 	float kI;
 	float kD;
@@ -121,7 +122,8 @@ struct PIDstruct{
 	float maxOutput;
 	float ramp;
 	float prev_PID;
-}static PIDdefault = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, TIME_DIFF, -1000000, 1000000, 1000000, 0};
+} PIDdefault = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, TIME_DIFF, -1000000, 1000000, 1000000, 0};
+
 
 typedef struct PIDstruct PIDvariables;
 
@@ -131,7 +133,7 @@ typedef struct PIDstruct PIDvariables;
  */
 inline void control_util_Init() {
 	MAX_VOLTAGE = MOTORS_50W ? MAX_VOLTAGE_50W : MAX_VOLTAGE_30W;
-	SPEED_CONSTANT = 2*M_PI/60.0 * (MOTORS_50W ? SPEED_CONSTANT_50W : SPEED_CONSTANT_30W);
+	SPEED_CONSTANT = 2*PI/60.0F * (MOTORS_50W ? SPEED_CONSTANT_50W : SPEED_CONSTANT_30W);
 	OMEGAtoPWM = (1/SPEED_CONSTANT)*(MAX_PWM/MAX_VOLTAGE)*GEAR_RATIO;
 	WHEEL_REF_LIMIT = WHEEL_REF_LIMIT_PWM/OMEGAtoPWM;
 }
@@ -190,11 +192,11 @@ inline float PID(float err, PIDvariables* K){
 
 //Scales the angle to the range Pi to -Pi in radians
 inline float constrainAngle(float x){
-    x = fmodf(x + M_PI, 2*M_PI);
+    x = fmodf(x + PI, 2*PI);
     if (x < 0){
-        x += 2*M_PI;
+        x += 2*PI;
     }
-    return x - M_PI;
+    return x - PI;
 }
 
 #endif /* UTILS_CONTROL_UTIL_H_ */

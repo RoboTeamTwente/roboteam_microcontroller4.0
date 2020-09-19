@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////// VARIABLES
 
 static float calibratedYaw = 0.0f;
-static bool hasCalibratedOnce = false;
+static volatile bool hasCalibratedOnce = false;
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION DECLARATIONS
 
@@ -70,11 +70,11 @@ float yaw_GetCalibratedYaw(){
 
 bool yaw_hasCalibratedOnce(){
 	return hasCalibratedOnce;
-};
+}
 
 void yaw_ResetCalibration(){
 	hasCalibratedOnce = false;
-};
+}
 
 ///////////////////////////////////////////////////// PRIVATE FUNCTION IMPLEMENTATIONS
 

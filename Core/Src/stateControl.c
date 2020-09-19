@@ -29,14 +29,14 @@ int stateControl_Init(){
 	status = on;
 	if (MOTORS_50W) {
 		// 50 W
-		initPID(&stateK[body_x], 0.1, 0.0, 0.0);
-		initPID(&stateK[body_y], 0.4, 0.0, 0.0);
-		initPID(&stateK[body_w], 20.0, 30.0, 0.0);
+		initPID(&stateK[body_x], 0.1f, 0.0f, 0.0f);
+		initPID(&stateK[body_y], 0.4f, 0.0f, 0.0f);
+		initPID(&stateK[body_w], 20.0f, 30.0f, 0.0f);
 	} else {
 		// 30 W
-		initPID(&stateK[body_x], 0.1, 0.0, 0.0);
-		initPID(&stateK[body_y], 0.4, 0.0, 0.0);
-		initPID(&stateK[body_w], 20.0, 30.0, 0.0);
+		initPID(&stateK[body_x], 0.1f, 0.0f, 0.0f);
+		initPID(&stateK[body_y], 0.4f, 0.0f, 0.0f);
+		initPID(&stateK[body_w], 20.0f, 30.0f, 0.0f);
 	}
 	HAL_TIM_Base_Start_IT(TIM_CONTROL);
 	return 0;
